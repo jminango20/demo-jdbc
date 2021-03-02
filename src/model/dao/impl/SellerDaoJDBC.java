@@ -50,18 +50,10 @@ public class SellerDaoJDBC implements SellerDao {
 				+ "WHERE seller.Id = ?"
 				);
 			st.setInt(1, id);
-			rs = st.executeQuery();
-			if(rs.next()) {
-				Department dep = new Department();
-				dep.setId(rs.getInt("DepartmentId"));
-				dep.setName(rs.getString("DepName"));
-				Seller obj = new Seller();
-				obj.setId(rs.getInt("Id"));
-				obj.setName(rs.getString("Name"));
-				obj.setEmail(rs.getString("Email"));
-				obj.setBaseSalary(rs.getDouble("BaseSalary"));
-				obj.setBithDate(rs.getDate("BirthDate"));
-				obj.setDepartment(dep);
+			rs = st.executeQuery(); //executa o comando SQL e fica salvo en rs. rs-> referencia a posicao 0
+			if(rs.next()) { //por isso uso rs.next()
+				Department dep = instantiateDepartment(rs); 
+				Seller obj = instantiateSeller(rs, dep);
 				return obj;
 			}
 			return null;
@@ -73,9 +65,26 @@ public class SellerDaoJDBC implements SellerDao {
 		finally {
 			DB.closeStatement(st);
 			DB.closeResultSet(rs);
-			
-		}
-		
+		}		
+	}
+
+	private Seller instantiateSeller(ResultSet rs, Department dep) throws SQLException {
+		Seller obj = new Seller();
+		obj.setId(rs.getInt("Id"));
+		obj.setName(rs.getString("Name"));
+		obj.setEmail(rs.getString("Email"));
+		obj.setBaseSalary(rs.getDouble("BaseSalary"));
+		obj.setBithDate(rs.getDate("BirthDate"));
+		obj.setDepartment(dep); //uso objeto Department por asociacao
+		return obj;
+	}
+
+	private Department instantiateDepartment(ResultSet rs) throws SQLException {
+		// TODO Auto-generated method stub
+		Department dep = new Department();
+		dep.setId(rs.getInt("DepartmentId"));
+		dep.setName(rs.getString("DepName"));
+		return dep;		
 	}
 
 	@Override
